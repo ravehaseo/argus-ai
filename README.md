@@ -1,6 +1,6 @@
 # Argus - AI Code Review Assistant
 
-Argus is a micro SaaS application that provides AI-powered code reviews for GitHub repositories and uploaded code files. Named after Argus Panoptes, the all-seeing watcher from Greek mythology. Built to generate side income and showcase AI engineering skills for Korean, Japanese, and Western job markets.
+Argus is a micro SaaS application that provides AI-powered code reviews for GitHub repositories and uploaded code files. 
 
 ## Features
 
