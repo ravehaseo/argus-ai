@@ -22,6 +22,9 @@ class Review(Base, TimestampMixin):
     status = Column(String, default=ReviewStatus.PENDING, nullable=False, index=True)
     review_type = Column(String, nullable=False)
     completed_at = Column(DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f"<Review(id={self.id}, status={self.status}, repository={self.repository_name})>"
 
     user = relationship("User", backref="reviews")
     result = relationship("ReviewResult", back_populates="review", uselist=False)
