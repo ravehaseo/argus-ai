@@ -76,54 +76,71 @@ async def create_review(
 async def process_review_async(review_id: UUID, repo_url: str):
     """Process review asynchronously in background."""
     from app.core.database import SessionLocal
+    from app.core.logging_config import logger
+    from app.core.exceptions import ReviewProcessingError
     
     local_db = SessionLocal()
+    review = None
     try:
         review = local_db.query(Review).filter(Review.id == review_id).first()
         if not review:
+            logger.warning(f"Review {review_id} not found")
             return
         
+        logger.info(f"Starting review processing for {review_id}: {repo_url}")
         review.status = ReviewStatus.PROCESSING
         local_db.commit()
         
-        generator = ReviewGenerator()
-        result_data = await generator.generate_review(repo_url, review_id)
-        
-        review_result = ReviewResult(
-            review_id=review_id,
-            security_score=result_data["security_score"],
-            quality_score=result_data["quality_score"],
-            tech_debt_score=result_data["tech_debt_score"],
-            summary=result_data.get("summary"),
-            findings=result_data.get("findings", []),
-            recommendations=result_data.get("recommendations", []),
-            raw_analysis=result_data.get("raw_analysis")
-        )
-        
-        local_db.add(review_result)
-        
-        for finding_data in result_data.get("findings", []):
-            finding = Finding(
-                review_result_id=review_result.id,
-                severity=finding_data.get("severity", "info"),
-                category=finding_data.get("category", "best_practices"),
-                file_path=finding_data.get("file_path"),
-                line_number=finding_data.get("line_number"),
-                issue_description=finding_data.get("description", ""),
-                suggested_fix=finding_data.get("suggested_fix"),
-                code_snippet=finding_data.get("code_snippet")
+        try:
+            generator = ReviewGenerator()
+            result_data = await generator.generate_review(repo_url, review_id)
+            
+            review_result = ReviewResult(
+                review_id=review_id,
+                security_score=result_data["security_score"],
+                quality_score=result_data["quality_score"],
+                tech_debt_score=result_data["tech_debt_score"],
+                summary=result_data.get("summary"),
+                findings=result_data.get("findings", []),
+                recommendations=result_data.get("recommendations", []),
+                raw_analysis=result_data.get("raw_analysis")
             )
-            local_db.add(finding)
-        
-        from datetime import datetime
-        review.status = ReviewStatus.COMPLETED
-        review.completed_at = datetime.utcnow()
-        
-        local_db.commit()
-        
+            
+            local_db.add(review_result)
+            local_db.flush()  # Flush to get review_result.id
+            
+            for finding_data in result_data.get("findings", []):
+                finding = Finding(
+                    review_result_id=review_result.id,
+                    severity=finding_data.get("severity", "info"),
+                    category=finding_data.get("category", "best_practices"),
+                    file_path=finding_data.get("file_path"),
+                    line_number=finding_data.get("line_number"),
+                    issue_description=finding_data.get("description", ""),
+                    suggested_fix=finding_data.get("suggested_fix"),
+                    code_snippet=finding_data.get("code_snippet")
+                )
+                local_db.add(finding)
+            
+            from datetime import datetime
+            review.status = ReviewStatus.COMPLETED
+            review.completed_at = datetime.utcnow()
+            local_db.commit()
+            logger.info(f"Review {review_id} completed successfully")
+            
+        except Exception as e:
+            logger.error(f"Error processing review {review_id}: {str(e)}", exc_info=True)
+            if review:
+                review.status = ReviewStatus.FAILED
+                local_db.commit()
     except Exception as e:
-        review.status = ReviewStatus.FAILED
-        local_db.commit()
+        logger.error(f"Critical error in review processing {review_id}: {str(e)}", exc_info=True)
+        if review:
+            try:
+                review.status = ReviewStatus.FAILED
+                local_db.commit()
+            except:
+                pass
     finally:
         local_db.close()
 
