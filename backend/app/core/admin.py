@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.core.config import settings
-from app.core.dependencies import get_supabase_client
+# Removed circular import - get_supabase_client not needed here
 from app.core.exceptions import AuthenticationError
 
 
@@ -16,9 +16,9 @@ def create_or_get_admin_user(db: Session) -> User:
     
     if not admin:
         # Create admin user directly in database
-        # Note: We'll use a special admin ID
+        import uuid
         admin = User(
-            id="admin-user-id",
+            id=uuid.uuid4(),
             email=settings.ADMIN_EMAIL,
             subscription_tier="enterprise",
             is_admin=True

@@ -18,24 +18,22 @@ async def get_current_user(
     """Get current authenticated user from JWT token or admin bypass."""
     from app.core.config import settings
     
-    # Check for admin token bypass
-    if authorization and authorization == "Bearer admin-token-bypass":
-        if settings.ADMIN_ENABLED and settings.ADMIN_EMAIL:
-            admin = db.query(User).filter(User.email == settings.ADMIN_EMAIL).first()
-            if admin and admin.is_admin:
-                return admin
-            # Create admin if doesn't exist
-            return create_or_get_admin_user(db)
+    # Extract token from Authorization header first
+    if not authorization or not authorization.startswith("Bearer "):
+        raise AuthenticationError("Missing or invalid authorization header")
+    
+    token = authorization.replace("Bearer ", "").strip()
+    
+    # Check for admin token bypass FIRST (before Supabase validation)
+    if token == "admin-token-bypass" and settings.ADMIN_ENABLED:
+        import logging
+        logger = logging.getLogger("argus")
+        logger.info(f"Admin token detected for email: {settings.ADMIN_EMAIL}")
+        return create_or_get_admin_user(db)
     
     # Regular Supabase JWT validation
     try:
         supabase = get_supabase_client()
-        
-        # Extract token from Authorization header
-        if not authorization or not authorization.startswith("Bearer "):
-            raise AuthenticationError("Missing or invalid authorization header")
-        
-        token = authorization.replace("Bearer ", "")
         
         # Verify token with Supabase
         try:
@@ -43,7 +41,7 @@ async def get_current_user(
             if not user_data or not user_data.user:
                 raise AuthenticationError("Invalid token")
         except Exception:
-            # If Supabase validation fails, check if it's admin token
+            # If Supabase validation fails, check if it's admin token (fallback)
             if token == "admin-token-bypass" and settings.ADMIN_ENABLED:
                 return create_or_get_admin_user(db)
             raise AuthenticationError("Invalid token")
