@@ -73,11 +73,22 @@ async def authorization_error_handler(request: Request, exc: AuthorizationError)
 
 async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """Handle request validation errors."""
+    errors = exc.errors()
+    # Format validation errors into user-friendly messages
+    error_messages = []
+    for error in errors:
+        field = " -> ".join(str(loc) for loc in error.get("loc", []))
+        msg = error.get("msg", "Invalid value")
+        error_messages.append(f"{field}: {msg}" if field else msg)
+    
+    detail_message = "; ".join(error_messages) if error_messages else "Validation failed"
+    
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": "ValidationError",
-            "detail": exc.errors(),
+            "detail": detail_message,
+            "errors": errors,  # Keep full errors for debugging
         }
     )
 
