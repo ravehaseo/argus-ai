@@ -73,10 +73,20 @@ async def get_optional_user(
     authorization: Optional[str] = Header(None, alias="Authorization"),
     db: Session = Depends(get_db)
 ) -> Optional[User]:
-    """Get current user if authenticated, otherwise None."""
+    """Get current user if authenticated, otherwise None.
+    
+    This allows endpoints to be publicly accessible while still providing
+    user context if the user is authenticated.
+    """
+    # If no authorization header, return None (public access)
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    
+    # Try to get the user, but don't fail if authentication fails
     try:
         return await get_current_user(authorization, db)
-    except (AuthenticationError, HTTPException):
+    except (AuthenticationError, HTTPException, Exception):
+        # Any authentication error means no user - return None for public access
         return None
 
 
