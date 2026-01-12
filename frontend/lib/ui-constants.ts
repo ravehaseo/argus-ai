@@ -127,11 +127,11 @@ export const STATUS_COLORS = {
 
 // Severity Colors
 export const SEVERITY_COLORS = {
-  CRITICAL: 'bg-red-100 text-red-800',
-  HIGH: 'bg-orange-100 text-orange-800',
-  MEDIUM: 'bg-yellow-100 text-yellow-800',
-  LOW: 'bg-blue-100 text-blue-800',
-  INFO: 'bg-gray-100 text-gray-800',
+  CRITICAL: 'bg-red-100 text-red-800 border-red-300',
+  HIGH: 'bg-orange-600 text-white border-orange-700', // Dark orange for maximum visibility
+  MEDIUM: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  LOW: 'bg-blue-100 text-blue-800 border-blue-300',
+  INFO: 'bg-gray-100 text-gray-800 border-gray-300',
 } as const;
 
 // Error Messages
