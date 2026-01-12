@@ -18,7 +18,16 @@ class ReviewGenerator:
 
     def __init__(self, github_token: str = None):
         """Initialize review generator with services."""
-        self.github_service = GitHubService(access_token=github_token)
+        from app.core.config import settings
+        
+        # Use provided token, or fall back to config token, or None
+        token = github_token or settings.GITHUB_ACCESS_TOKEN or None
+        if token:
+            logger.info("Using GitHub access token for API requests")
+        else:
+            logger.warning("No GitHub access token configured. Rate limit: 60 requests/hour. Add GITHUB_ACCESS_TOKEN to .env for 5000 requests/hour.")
+        
+        self.github_service = GitHubService(access_token=token)
         self.ai_service = AIService()
         self.code_analyzer = CodeAnalyzer()
 

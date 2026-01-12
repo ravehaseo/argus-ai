@@ -14,12 +14,24 @@ class AIService:
     """Service for AI-powered code analysis."""
 
     def __init__(self):
-        """Initialize AI service with OpenAI client."""
-        if not settings.OPENAI_API_KEY:
-            raise ValueError("OPENAI_API_KEY is not set")
+        """Initialize AI service with OpenAI or Groq client."""
+        self.use_groq = settings.USE_GROQ
         
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        self.model = "gpt-4-turbo-preview"
+        if self.use_groq:
+            if not settings.GROQ_API_KEY:
+                raise ValueError("GROQ_API_KEY is not set when USE_GROQ=True")
+            # Groq uses OpenAI-compatible API
+            self.client = AsyncOpenAI(
+                api_key=settings.GROQ_API_KEY,
+                base_url="https://api.groq.com/openai/v1"
+            )
+            self.model = settings.GROQ_MODEL
+        else:
+            if not settings.OPENAI_API_KEY:
+                raise ValueError("OPENAI_API_KEY is not set. Set USE_GROQ=True to use Groq free tier instead.")
+            self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            # Use gpt-4o-mini for cheaper testing (default)
+            self.model = settings.OPENAI_MODEL
 
     async def analyze_code(
         self,
@@ -93,7 +105,11 @@ class AIService:
             )
             
             result = json.loads(response.choices[0].message.content)
-            logger.info("Repository review completed successfully")
+            findings_count = len(result.get("findings", []))
+            logger.info(f"Repository review completed successfully. Found {findings_count} findings.")
+            if findings_count > 0:
+                sample_finding = result.get("findings", [])[0]
+                logger.debug(f"Sample finding structure: severity={sample_finding.get('severity')}, category={sample_finding.get('category')}, has_file_path={bool(sample_finding.get('file_path'))}")
             return result
             
         except json.JSONDecodeError as e:
@@ -126,8 +142,10 @@ Provide a JSON response with:
    - severity: "critical", "high", "medium", "low", "info"
    - category: "security", "performance", "maintainability", "best_practices", "bug"
    - description: detailed issue description
+   - file_path: path to the file where the issue was found (e.g., "src/main.py")
+   - line_number: line number where the issue occurs (if applicable, as integer)
    - suggested_fix: how to fix the issue
-   - line_number: line number if applicable
+   - code_snippet: the problematic code snippet (if applicable)
 
 Focus on:
 - Security vulnerabilities (SQL injection, XSS, authentication issues, etc.)
@@ -166,10 +184,18 @@ Provide a JSON response with:
 2. quality_score: 0-100
 3. tech_debt_score: 0-100
 4. summary: overall assessment
-5. findings: array of issues (same structure as file analysis)
+5. findings: array of issues with:
+   - severity: "critical", "high", "medium", "low", "info"
+   - category: "security", "performance", "maintainability", "best_practices", "bug"
+   - description: detailed issue description
+   - file_path: path to the file where the issue was found (e.g., "src/main.py")
+   - line_number: line number where the issue occurs (if applicable)
+   - suggested_fix: how to fix the issue
+   - code_snippet: the problematic code snippet (if applicable)
 6. recommendations: array of improvement suggestions
 
 Analyze the repository holistically for architecture, security patterns, code organization, and best practices.
+For each finding, include the file path and line number where the issue was found.
 """
         
         return prompt

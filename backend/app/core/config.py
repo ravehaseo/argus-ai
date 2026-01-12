@@ -32,12 +32,18 @@ class Settings(BaseSettings):
     SUPABASE_ANON_KEY: str
 
     # AI Services
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: str = ""  # Optional if using Groq
+    OPENAI_MODEL: str = "gpt-4o-mini"  # Use gpt-4o-mini for cheaper testing
+    # Alternative: Groq (free tier available)
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.1-8b-instant"  # Current free tier model (fast and reliable)
+    USE_GROQ: bool = False  # Set to True to use Groq instead of OpenAI
     ANTHROPIC_API_KEY: str = ""
 
     # GitHub
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str
+    GITHUB_ACCESS_TOKEN: str = ""  # Optional: Personal Access Token for higher rate limits and private repo access
 
     # Stripe
     STRIPE_SECRET_KEY: str

@@ -38,7 +38,29 @@ class GitHubService:
             if response.status_code == 404:
                 raise InvalidRepositoryError(f"Repository not found: {repo_url}")
             if response.status_code == 403:
-                raise InvalidRepositoryError(f"Access denied to repository: {repo_url}")
+                # Check if it's rate limiting
+                rate_limit_remaining = response.headers.get("X-RateLimit-Remaining", "unknown")
+                rate_limit_reset = response.headers.get("X-RateLimit-Reset", "unknown")
+                
+                try:
+                    error_data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                    error_msg = error_data.get("message", "Access denied")
+                except:
+                    error_msg = "Access denied"
+                
+                if "rate limit" in error_msg.lower() or rate_limit_remaining == "0":
+                    raise InvalidRepositoryError(
+                        f"GitHub API rate limit exceeded. Remaining: {rate_limit_remaining}, Reset at: {rate_limit_reset}. "
+                        f"Please add a GitHub Personal Access Token to increase your rate limit to 5000 requests/hour. "
+                        f"See ENV_SETUP.md for instructions."
+                    )
+                else:
+                    raise InvalidRepositoryError(
+                        f"Access denied to repository: {repo_url}. "
+                        f"Error: {error_msg}. "
+                        f"If this is a private repository, you need to add a GitHub Personal Access Token. "
+                        f"See ENV_SETUP.md for instructions."
+                    )
             
             response.raise_for_status()
             return response.json()
