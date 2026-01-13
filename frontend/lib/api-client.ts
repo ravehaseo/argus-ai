@@ -16,6 +16,9 @@ class APIClient {
 
     this.client.interceptors.request.use(
       async (config) => {
+        // Only add Authorization header if we have a valid token
+        // This allows public endpoints to work without authentication
+        
         // Check for admin token in localStorage first
         const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
         
@@ -24,9 +27,15 @@ class APIClient {
           config.headers.Authorization = `Bearer ${adminToken}`;
         } else {
           // Regular user - get token from Supabase session
-          const { data: { session } } = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
-          if (session?.access_token) {
-            config.headers.Authorization = `Bearer ${session.access_token}`;
+          try {
+            const { data: { session } } = await import('../lib/supabase').then(m => m.supabase.auth.getSession());
+            if (session?.access_token) {
+              config.headers.Authorization = `Bearer ${session.access_token}`;
+            }
+            // If no session, don't add Authorization header (allows public access)
+          } catch (error) {
+            // If Supabase is not available or fails, don't add Authorization header
+            // This allows the request to proceed without authentication
           }
         }
         return config;
