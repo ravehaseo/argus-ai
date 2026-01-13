@@ -13,14 +13,64 @@ export default function NewReviewPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const validateGitHubUrl = (url: string): boolean => {
+    if (!url) return false;
+    const trimmed = url.trim();
+    
+    // More strict pattern: only matches repository URLs
+    // Must have exactly: github.com/owner/repo
+    const githubPattern = /^https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9]([a-zA-Z0-9_.-]*[a-zA-Z0-9])?\/[a-zA-Z0-9]([a-zA-Z0-9_.-]*[a-zA-Z0-9])?\/?$/;
+    
+    if (!githubPattern.test(trimmed)) {
+      return false;
+    }
+    
+    // Parse URL to check path parts
+    try {
+      const urlObj = new URL(trimmed);
+      const pathParts = urlObj.pathname.split('/').filter(p => p);
+      
+      // Must have exactly 2 path parts: owner and repo
+      if (pathParts.length !== 2) {
+        return false;
+      }
+      
+      const [owner, repo] = pathParts;
+      
+      // Exclude common GitHub non-repository paths
+      const excludedPaths = [
+        'settings', 'profile', 'orgs', 'organizations', 'explore',
+        'topics', 'trending', 'stars', 'marketplace', 'pulls', 'issues',
+        'notifications', 'new', 'import', 'login', 'logout', 'join',
+        'pricing', 'enterprise', 'blog', 'about', 'contact', 'site',
+        'security', 'roadmap', 'features', 'customer-stories', 'resources'
+      ];
+      
+      if (excludedPaths.includes(owner.toLowerCase()) || excludedPaths.includes(repo.toLowerCase())) {
+        return false;
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    
+    // Validate GitHub URL
+    if (!validateGitHubUrl(repositoryUrl)) {
+      setError('Please enter a valid GitHub repository URL (e.g., https://github.com/username/repository)');
+      return;
+    }
+    
     setLoading(true);
 
     try {
       const response = await apiClient.post('/api/v1/reviews/', {
-        repository_url: repositoryUrl,
+        repository_url: repositoryUrl.trim(),
         review_type: 'github_repo',
       });
 
