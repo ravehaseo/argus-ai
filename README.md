@@ -83,10 +83,6 @@ npm run dev
 
 Visit `http://localhost:3000` to see the application.
 
-## Development Guidelines
-
-See [cursor-instructions.md](./cursor-instructions.md) for detailed coding standards, architecture principles, and development guidelines.
-
 ## License
 
 MIT
