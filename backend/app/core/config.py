@@ -33,11 +33,16 @@ class Settings(BaseSettings):
 
     # AI Services
     OPENAI_API_KEY: str = ""  # Optional if using Groq
-    OPENAI_MODEL: str = "gpt-4o-mini"  # Use gpt-4o-mini for cheaper testing
+    # OpenAI Models: gpt-5.1, gpt-5-mini, gpt-5-nano, gpt-4.1, gpt-4o, gpt-4o-mini, o3 (check OpenAI docs for latest)
+    # Note: Models are selected automatically based on subscription tier:
+    #   - Free: Groq (if enabled) or gpt-4o-mini
+    #   - Pro: gpt-5-mini
+    #   - Enterprise: gpt-5.1
+    OPENAI_MODEL: str = "gpt-4o-mini"  # Fallback default (used for free tier if not using Groq)
     # Alternative: Groq (free tier available)
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.1-8b-instant"  # Current free tier model (fast and reliable)
-    USE_GROQ: bool = False  # Set to True to use Groq instead of OpenAI
+    USE_GROQ: bool = False  # Set to True to use Groq instead of OpenAI for free tier
     ANTHROPIC_API_KEY: str = ""
 
     # GitHub
@@ -52,7 +57,11 @@ class Settings(BaseSettings):
     # Admin
     ADMIN_EMAIL: str = ""
     ADMIN_PASSWORD: str = ""
-    ADMIN_ENABLED: bool = True
+    # IMPORTANT:
+    # - Admin bypass is intended for local development and testing only.
+    # - It should be disabled in production to avoid a permanent superuser backdoor.
+    # - Use proper authentication / RBAC for production admin access instead.
+    ADMIN_ENABLED: bool = False
 
     class Config:
         env_file = ".env"

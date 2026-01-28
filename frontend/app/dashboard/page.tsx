@@ -14,6 +14,7 @@ import AverageScoresChart from '@/components/charts/AverageScoresChart';
 import MostReviewedRepos from '@/components/charts/MostReviewedRepos';
 import ActivityTimeline from '@/components/charts/ActivityTimeline';
 import { formatDateTime, formatRelativeTime } from '@/lib/date-utils';
+import { AppShell } from '@/components/layout/AppShell';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -238,13 +239,18 @@ export default function DashboardPage() {
 
   if (loading && reviews.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow">
+      <AppShell>
+        <nav className="bg-black/60 border-b border-white/10 backdrop-blur">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center">
-                <Link href="/dashboard" className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
+                <Link href="/dashboard" className="flex items-center space-x-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 text-xs font-black shadow-md shadow-indigo-500/40">
+                    A
+                  </span>
+                  <span className="text-xl font-semibold tracking-tight text-white">
+                    {APP_NAME}
+                  </span>
                 </Link>
               </div>
             </div>
@@ -259,28 +265,41 @@ export default function DashboardPage() {
             </div>
           </div>
         </main>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
+    <AppShell>
+      <nav className="bg-black/60 border-b border-white/10 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-indigo-600">
-                {APP_NAME}
+              <Link href="/dashboard" className="flex items-center space-x-2">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 text-xs font-black shadow-md shadow-indigo-500/40">
+                  A
+                </span>
+                <span className="text-xl font-semibold tracking-tight text-white">
+                  {APP_NAME}
+                </span>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">{user?.email}</span>
-              <span className="px-2 py-1 text-xs font-semibold rounded bg-indigo-100 text-indigo-800">
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-200">{user?.email}</span>
+              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/40">
                 {user?.subscription_tier}
               </span>
+              {user?.subscription_tier && user.subscription_tier.toLowerCase() !== 'enterprise' && (
+                <Link
+                  href="/pricing"
+                  className="text-xs font-semibold px-3 py-1 rounded-full border border-amber-400/70 bg-amber-500/15 text-amber-100 hover:bg-amber-500/25 hover:border-amber-300 transition-colors"
+                >
+                  Upgrade
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-sm text-gray-300 hover:text-white"
               >
                 {NAV.LOGOUT}
               </button>
@@ -293,32 +312,42 @@ export default function DashboardPage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{DASHBOARD.TITLE}</h1>
+              <h1 className="text-3xl font-bold text-white">{DASHBOARD.TITLE}</h1>
               {totalReviews > 0 && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-400 mt-1">
                   {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'} {searchQuery || statusFilter !== 'all' ? 'found' : 'total'}
                 </p>
               )}
               {typeof window !== 'undefined' && (
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Times shown in {Intl.DateTimeFormat().resolvedOptions().timeZone}
                 </p>
               )}
             </div>
-            <Link
-              href="/review/new"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
-              {DASHBOARD.NEW_REVIEW_BUTTON}
-            </Link>
+            <div className="flex items-center space-x-3">
+              {user?.subscription_tier && user.subscription_tier.toLowerCase() !== 'enterprise' && (
+                <Link
+                  href="/pricing"
+                  className="inline-flex items-center rounded-full border border-indigo-400/60 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20 hover:border-indigo-300 transition-colors"
+                >
+                  View plans
+                </Link>
+              )}
+              <Link
+                href="/review/new"
+                className="inline-flex items-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-500 transition-colors"
+              >
+                {DASHBOARD.NEW_REVIEW_BUTTON}
+              </Link>
+            </div>
           </div>
 
           {/* Search, Filter, and Sort Controls */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-4 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Search */}
               <div>
-                <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="search" className="block text-sm font-medium text-gray-200 mb-1">
                   Search
                 </label>
                 <input
@@ -327,20 +356,20 @@ export default function DashboardPage() {
                   value={searchQuery}
                   onChange={handleSearchChange}
                   placeholder="Repository name or URL..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-white/15 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-50 bg-black/40 placeholder-gray-500"
                 />
               </div>
 
               {/* Status Filter */}
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="status" className="block text-sm font-medium text-gray-200 mb-1">
                   Status
                 </label>
                 <select
                   id="status"
                   value={statusFilter}
                   onChange={handleStatusFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-white/15 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-50 bg-black/40"
                 >
                   <option value="all">All Statuses</option>
                   <option value="completed">Completed</option>
@@ -352,13 +381,13 @@ export default function DashboardPage() {
 
               {/* Sort */}
               <div>
-                <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="sort" className="block text-sm font-medium text-gray-200 mb-1">
                   Sort By
                 </label>
                 <select
                   id="sort"
                   onChange={handleSortChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
+                  className="w-full px-3 py-2 border border-white/15 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-50 bg-black/40"
                   defaultValue="date_desc"
                 >
                   <option value="date_desc">Date (Newest First)</option>
@@ -375,21 +404,21 @@ export default function DashboardPage() {
           {/* Quick Stats */}
           {totalReviews > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl shadow-md border border-indigo-200 p-4">
-                <p className="text-sm font-medium text-indigo-700 mb-1">Total Reviews</p>
-                <p className="text-3xl font-bold text-indigo-900">{totalReviews}</p>
+              <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 rounded-xl shadow-md shadow-black/40 border border-indigo-400/40 p-4">
+                <p className="text-sm font-medium text-indigo-100 mb-1">Total Reviews</p>
+                <p className="text-3xl font-bold text-white">{totalReviews}</p>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-md border border-green-200 p-4">
-                <p className="text-sm font-medium text-green-700 mb-1">Completed</p>
-                <p className="text-3xl font-bold text-green-900">{stats.completed || 0}</p>
+              <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl shadow-md shadow-black/40 border border-green-400/40 p-4">
+                <p className="text-sm font-medium text-green-100 mb-1">Completed</p>
+                <p className="text-3xl font-bold text-green-100">{stats.completed || 0}</p>
               </div>
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-md border border-blue-200 p-4">
-                <p className="text-sm font-medium text-blue-700 mb-1">Processing</p>
-                <p className="text-3xl font-bold text-blue-900">{stats.processing || 0}</p>
+              <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-xl shadow-md shadow-black/40 border border-blue-400/40 p-4">
+                <p className="text-sm font-medium text-blue-100 mb-1">Processing</p>
+                <p className="text-3xl font-bold text-blue-100">{stats.processing || 0}</p>
               </div>
-              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-md border border-red-200 p-4">
-                <p className="text-sm font-medium text-red-700 mb-1">Failed</p>
-                <p className="text-3xl font-bold text-red-900">{stats.failed || 0}</p>
+              <div className="bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-xl shadow-md shadow-black/40 border border-red-400/40 p-4">
+                <p className="text-sm font-medium text-red-100 mb-1">Failed</p>
+                <p className="text-3xl font-bold text-red-100">{stats.failed || 0}</p>
               </div>
             </div>
           )}
@@ -420,10 +449,10 @@ export default function DashboardPage() {
 
           {reviews.length === 0 && !loading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">{DASHBOARD.NO_REVIEWS_MESSAGE}</p>
+              <p className="text-gray-400 mb-4">{DASHBOARD.NO_REVIEWS_MESSAGE}</p>
               <Link
                 href="/review/new"
-                className="text-indigo-600 hover:text-indigo-500"
+                className="text-indigo-300 hover:text-indigo-200"
               >
                 {DASHBOARD.CREATE_FIRST_REVIEW}
               </Link>
@@ -433,22 +462,34 @@ export default function DashboardPage() {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="bg-white rounded-lg shadow p-6 hover:shadow-md transition"
+                  className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-6 hover:border-indigo-500/60 hover:shadow-indigo-500/20 transition"
                 >
                   <div className="flex justify-between items-start">
                     <Link
                       href={`/review/${review.id}`}
                       className="flex-1"
                     >
-                      <h3 className="text-lg font-semibold text-gray-900 hover:text-indigo-600">
+                      <h3 className="text-lg font-semibold text-white hover:text-indigo-300">
                         {review.repository_name || 'Untitled Repository'}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-gray-400 mt-1">
                         {review.repository_url}
                       </p>
-                      <p className="text-xs text-gray-400 mt-2" title={formatDateTime(review.created_at)}>
-                        {formatRelativeTime(review.created_at)}
-                      </p>
+                      {(() => {
+                        const isCompleted = review.status === 'completed';
+                        const completedAt = (review as any).completed_at;
+                        const baseDate =
+                          isCompleted && completedAt ? completedAt : review.created_at;
+                        const label = isCompleted ? 'Completed' : 'Requested';
+                        return (
+                          <p
+                            className="text-xs text-gray-500 mt-2"
+                            title={formatDateTime(baseDate)}
+                          >
+                            {label} {formatRelativeTime(baseDate)}
+                          </p>
+                        );
+                      })()}
                     </Link>
                     <div className="flex items-center space-x-2">
                       <span
@@ -547,7 +588,7 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
-    </div>
+    </AppShell>
   );
 }
 

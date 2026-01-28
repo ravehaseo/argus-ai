@@ -16,8 +16,13 @@ logger = logging.getLogger("argus")
 class ReviewGenerator:
     """Service for generating code reviews."""
 
-    def __init__(self, github_token: str = None):
-        """Initialize review generator with services."""
+    def __init__(self, github_token: str = None, subscription_tier: str = "free"):
+        """Initialize review generator with services.
+        
+        Args:
+            github_token: Optional GitHub access token
+            subscription_tier: User's subscription tier (free, pro, enterprise)
+        """
         from app.core.config import settings
         
         # Use provided token, or fall back to config token, or None
@@ -28,7 +33,7 @@ class ReviewGenerator:
             logger.warning("No GitHub access token configured. Rate limit: 60 requests/hour. Add GITHUB_ACCESS_TOKEN to .env for 5000 requests/hour.")
         
         self.github_service = GitHubService(access_token=token)
-        self.ai_service = AIService()
+        self.ai_service = AIService(subscription_tier=subscription_tier)
         self.code_analyzer = CodeAnalyzer()
 
     async def generate_review(

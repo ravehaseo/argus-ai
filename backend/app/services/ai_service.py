@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from openai import AsyncOpenAI
 from app.core.config import settings
 from app.core.exceptions import AIServiceError
+from app.core.constants import SubscriptionTier
 
 logger = logging.getLogger("argus")
 
@@ -13,8 +14,13 @@ logger = logging.getLogger("argus")
 class AIService:
     """Service for AI-powered code analysis."""
 
-    def __init__(self):
-        """Initialize AI service with OpenAI or Groq client."""
+    def __init__(self, subscription_tier: str = "free"):
+        """Initialize AI service with OpenAI or Groq client.
+        
+        Args:
+            subscription_tier: User's subscription tier (free, pro, enterprise)
+        """
+        self.subscription_tier = SubscriptionTier(subscription_tier.lower())
         self.use_groq = settings.USE_GROQ
         
         if self.use_groq:
@@ -30,8 +36,34 @@ class AIService:
             if not settings.OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY is not set. Set USE_GROQ=True to use Groq free tier instead.")
             self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            # Use gpt-4o-mini for cheaper testing (default)
-            self.model = settings.OPENAI_MODEL
+            # Select model based on subscription tier
+            self.model = self._get_model_for_tier()
+        
+        logger.info(f"Initialized AIService with model: {self.model} for tier: {self.subscription_tier.value}")
+    
+    def _get_model_for_tier(self) -> str:
+        """Get appropriate OpenAI model based on subscription tier.
+        
+        Returns:
+            Model name string
+        """
+        # Free tier: Use Groq if enabled, otherwise GPT-4o-mini (fallback)
+        if self.subscription_tier == SubscriptionTier.FREE:
+            if self.use_groq:
+                return settings.GROQ_MODEL
+            # Fallback to GPT-4o-mini for free tier if not using Groq
+            return "gpt-4o-mini"
+        
+        # Pro tier: Use GPT-5-mini (cost-effective GPT-5)
+        elif self.subscription_tier == SubscriptionTier.PRO:
+            return "gpt-5-mini"
+        
+        # Enterprise tier: Use GPT-5.1 (best quality)
+        elif self.subscription_tier == SubscriptionTier.ENTERPRISE:
+            return "gpt-5.1"
+        
+        # Default fallback
+        return settings.OPENAI_MODEL
 
     async def analyze_code(
         self,

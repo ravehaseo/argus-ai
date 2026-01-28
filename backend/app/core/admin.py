@@ -38,6 +38,11 @@ def create_or_get_admin_user(db: Session) -> User:
 
 async def authenticate_admin(email: str, password: str, db: Session) -> dict:
     """Authenticate admin user with special bypass."""
+    # In production, the admin bypass must be disabled to avoid a hard-coded
+    # superuser backdoor. Use proper authentication / RBAC instead.
+    if settings.ENVIRONMENT == "production":
+        raise AuthenticationError("Admin bypass authentication is disabled in production")
+    
     if not settings.ADMIN_ENABLED:
         raise AuthenticationError("Admin authentication is disabled")
     

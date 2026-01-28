@@ -89,12 +89,17 @@ async def process_review_async(review_id: UUID, repo_url: str):
             logger.warning(f"Review {review_id} not found")
             return
         
+        # Get user to determine subscription tier
+        user = local_db.query(User).filter(User.id == review.user_id).first()
+        subscription_tier = user.subscription_tier if user else "free"
+        logger.info(f"Processing review for user tier: {subscription_tier}")
+        
         logger.info(f"Starting review processing for {review_id}: {repo_url}")
         review.status = ReviewStatus.PROCESSING
         local_db.commit()
         
         try:
-            generator = ReviewGenerator()
+            generator = ReviewGenerator(subscription_tier=subscription_tier)
             result_data = await generator.generate_review(repo_url, review_id)
             
             review_result = ReviewResult(

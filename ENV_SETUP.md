@@ -55,11 +55,29 @@ service_role key:   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (different string)
                     Use for: SUPABASE_SERVICE_ROLE_KEY (backend only!)
 ```
 
-### 2. OpenAI API Key (Required for AI Reviews)
+### 2. AI Service Setup (Choose One)
 
+**Option A: OpenAI (Recommended for Production)**
+- New accounts get ~$5 free credits
+- Use `gpt-4o-mini` for cheaper testing (default)
 1. Go to https://platform.openai.com/api-keys
 2. Create a new API key
 3. Copy the key → `OPENAI_API_KEY` in `backend/.env`
+4. Default model is `gpt-4o-mini` (cheaper) - change to `gpt-4o` for better quality
+
+**Option B: Groq (FREE Tier Available! ⭐)**
+- **Free tier: 14,400 requests/day**
+- Fast inference, great for testing
+- Uses Llama 3.1 models
+1. Go to https://console.groq.com/keys
+2. Create a free account and get API key
+3. Add to `backend/.env`:
+   ```bash
+   USE_GROQ=true
+   GROQ_API_KEY=your-groq-key-here
+   GROQ_MODEL=llama-3.1-8b-instant
+   ```
+4. Leave `OPENAI_API_KEY` empty (or remove it)
 
 ### 3. Database Setup
 
@@ -88,15 +106,58 @@ ADMIN_EMAIL=your-admin@email.com
 ADMIN_PASSWORD=your-secure-password
 ```
 
-### 5. Optional: GitHub OAuth
+### 5. GitHub Access Token (Recommended)
 
-1. Go to https://github.com/settings/developers
-2. Click **New OAuth App**
-3. Set:
-   - **Application name**: Argus
-   - **Homepage URL**: http://localhost:3000
-   - **Authorization callback URL**: http://localhost:8000/api/v1/auth/github
-4. Copy **Client ID** and **Client Secret** to `backend/.env`
+**Why you need it:**
+- Without token: 60 requests/hour (rate limit)
+- With token: 5,000 requests/hour
+- Required for private repositories
+
+**How to get a GitHub Personal Access Token:**
+1. Go to https://github.com/settings/tokens
+2. Click **"Generate new token"** → **"Generate new token (classic)"**
+3. Give it a name (e.g., "Argus Code Reviewer")
+4. Select scopes:
+   - ✅ `public_repo` (for public repositories)
+   - ✅ `repo` (for private repositories, if needed)
+5. Click **"Generate token"**
+6. Copy the token (starts with `ghp_`)
+7. Add to `backend/.env`:
+   ```bash
+   GITHUB_ACCESS_TOKEN=ghp_your_token_here
+   ```
+
+**Note:** The token is optional but highly recommended to avoid rate limiting.
+
+### 6. Optional: GitHub OAuth (for user login)
+
+Argus now supports **modern OAuth login via Supabase Auth** (recommended).
+
+#### Option A (Recommended): Supabase Auth OAuth (GitHub/Google)
+
+1. In Supabase Dashboard → **Authentication** → **Providers**
+2. Enable **GitHub** (and/or **Google**)
+3. For GitHub, you’ll need to create a GitHub OAuth App:
+   - Go to https://github.com/settings/developers
+   - Click **New OAuth App**
+   - Set:
+     - **Application name**: Argus
+     - **Homepage URL**: http://localhost:3000
+     - **Authorization callback URL**: (copy from Supabase provider settings)
+4. In Supabase, set **Redirect URLs** to include:
+   - `http://localhost:3000/auth/callback`
+   - (Production) `https://YOUR_DOMAIN/auth/callback`
+
+**Notes:**
+- OAuth login happens in the frontend using Supabase (`signInWithOAuth`).
+- The backend continues to authenticate requests using the Supabase JWT in `Authorization: Bearer <token>`.
+
+#### Option B (Legacy): Backend GitHub OAuth endpoint
+
+If you use the backend OAuth flow (older), configure GitHub OAuth App callback to:
+- `http://localhost:8000/api/v1/auth/github`
+
+Then copy **Client ID** and **Client Secret** to `backend/.env`.
 
 ### 6. Optional: Stripe (For Payments)
 

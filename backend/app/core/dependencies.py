@@ -25,7 +25,12 @@ async def get_current_user(
     token = authorization.replace("Bearer ", "").strip()
     
     # Check for admin token bypass FIRST (before Supabase validation)
-    if token == "admin-token-bypass" and settings.ADMIN_ENABLED:
+    # This is strictly for non-production environments.
+    if (
+        token == "admin-token-bypass"
+        and settings.ADMIN_ENABLED
+        and settings.ENVIRONMENT != "production"
+    ):
         import logging
         logger = logging.getLogger("argus")
         logger.info(f"Admin token detected for email: {settings.ADMIN_EMAIL}")

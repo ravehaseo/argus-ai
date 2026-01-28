@@ -5,12 +5,13 @@ import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { supabase } from '@/lib/supabase';
 import type { ReviewDetail, Finding } from '@/types';
-import { REVIEW, APP_NAME, NAV, STATUS_COLORS, SEVERITY_COLORS } from '@/lib/ui-constants';
+import { REVIEW, NAV, STATUS_COLORS, SEVERITY_COLORS } from '@/lib/ui-constants';
 import { extractErrorMessage } from '@/lib/error-utils';
 import { exportFindingsAsCSV } from '@/lib/export-utils';
 import { formatDateTime } from '@/lib/date-utils';
 import Toast from '@/components/ui/Toast';
 import { ReviewDetailSkeleton } from '@/components/ui/LoadingSkeleton';
+import { AppShell } from '@/components/layout/AppShell';
 
 // UUID regex pattern: matches standard UUID format
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -329,49 +330,27 @@ export default function ReviewDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
-                </span>
-              </div>
-            </div>
-          </div>
-        </nav>
+      <AppShell>
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <ReviewDetailSkeleton />
           </div>
         </main>
-      </div>
+      </AppShell>
     );
   }
 
   if (!reviewId && !loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
-                </span>
-              </div>
-            </div>
-          </div>
-        </nav>
+      <AppShell>
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <div className="text-red-600">Invalid review ID. Please check the URL.</div>
+            <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-8 text-center">
+              <div className="text-red-200">Invalid review ID. Please check the URL.</div>
               {isOwner && (
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
                 >
                   Back to Dashboard
                 </button>
@@ -379,32 +358,21 @@ export default function ReviewDetailPage() {
             </div>
           </div>
         </main>
-      </div>
+      </AppShell>
     );
   }
 
   if (!loading && (error || !reviewDetail)) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center">
-                <span className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
-                </span>
-              </div>
-            </div>
-          </div>
-        </nav>
+      <AppShell>
         <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <div className="text-red-600">{error || REVIEW.DETAIL.NOT_FOUND}</div>
+            <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-8 text-center">
+              <div className="text-red-200">{error || REVIEW.DETAIL.NOT_FOUND}</div>
               {isOwner && (
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
                 >
                   Back to Dashboard
                 </button>
@@ -412,7 +380,7 @@ export default function ReviewDetailPage() {
             </div>
           </div>
         </main>
-      </div>
+      </AppShell>
     );
   }
 
@@ -423,40 +391,22 @@ export default function ReviewDetailPage() {
   const { review, result } = reviewDetail;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              {isOwner ? (
-                <a href="/dashboard" className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
-                </a>
-              ) : (
-                <span className="text-xl font-bold text-indigo-600">
-                  {APP_NAME}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <AppShell>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-6">
             {isOwner && (
               <button
                 onClick={() => router.push('/dashboard')}
-                className="text-sm text-indigo-600 hover:text-indigo-500 mb-4"
+                className="text-sm text-indigo-300 hover:text-indigo-200 mb-4"
               >
                 {NAV.BACK_TO_DASHBOARD}
               </button>
             )}
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-white">
               {review.repository_name || 'Code Review'}
             </h1>
-            <p className="text-gray-600 mt-2">{review.repository_url}</p>
+            <p className="text-gray-400 mt-2">{review.repository_url}</p>
             <span
               className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded ${
                 review.status === 'completed'
@@ -473,19 +423,19 @@ export default function ReviewDetailPage() {
           </div>
 
           {review.status === 'processing' || review.status === 'pending' ? (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">{REVIEW.DETAIL.PROCESSING.MESSAGE}</p>
-              <p className="mt-2 text-sm text-gray-500">This page will update automatically...</p>
+            <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto"></div>
+              <p className="mt-4 text-gray-200">{REVIEW.DETAIL.PROCESSING.MESSAGE}</p>
+              <p className="mt-2 text-sm text-gray-400">This page will update automatically...</p>
             </div>
           ) : result ? (
             <div className="space-y-6">
               {/* Export & Share Actions */}
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-md border border-indigo-100 p-4 flex flex-wrap gap-3">
+              <div className="bg-gradient-to-r from-indigo-500/15 to-purple-500/15 rounded-xl shadow-md border border-indigo-400/40 p-4 flex flex-wrap gap-3">
                 {result.finding_objects && result.finding_objects.length > 0 && (
                   <button
                     onClick={handleExportCSV}
-                    className="px-4 py-2.5 text-sm font-semibold text-indigo-700 bg-white rounded-lg hover:bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-300 transition-all shadow-sm hover:shadow flex items-center gap-2"
+                    className="px-4 py-2.5 text-sm font-semibold text-indigo-100 bg-black/40 rounded-lg hover:bg-black/60 border border-indigo-300/50 transition-all shadow-sm hover:shadow flex items-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -495,7 +445,7 @@ export default function ReviewDetailPage() {
                 )}
                 <button
                   onClick={handleShareReview}
-                  className="px-4 py-2.5 text-sm font-semibold text-indigo-700 bg-white rounded-lg hover:bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-300 transition-all shadow-sm hover:shadow flex items-center gap-2"
+                  className="px-4 py-2.5 text-sm font-semibold text-indigo-100 bg-black/40 rounded-lg hover:bg-black/60 border border-indigo-300/50 transition-all shadow-sm hover:shadow flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -504,35 +454,35 @@ export default function ReviewDetailPage() {
                 </button>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900">{REVIEW.DETAIL.SCORES.TITLE}</h2>
+              <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-6">
+                <h2 className="text-xl font-semibold mb-4 text-white">{REVIEW.DETAIL.SCORES.TITLE}</h2>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">{REVIEW.DETAIL.SCORES.SECURITY}</p>
+                    <p className="text-sm text-gray-300">{REVIEW.DETAIL.SCORES.SECURITY}</p>
                     <p className="text-3xl font-bold text-red-600">{result.security_score}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{REVIEW.DETAIL.SCORES.QUALITY}</p>
+                    <p className="text-sm text-gray-300">{REVIEW.DETAIL.SCORES.QUALITY}</p>
                     <p className="text-3xl font-bold text-blue-600">{result.quality_score}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{REVIEW.DETAIL.SCORES.TECH_DEBT}</p>
+                    <p className="text-sm text-gray-300">{REVIEW.DETAIL.SCORES.TECH_DEBT}</p>
                     <p className="text-3xl font-bold text-yellow-600">{result.tech_debt_score}</p>
                   </div>
                 </div>
               </div>
 
               {result.summary && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-900">{REVIEW.DETAIL.SUMMARY_TITLE}</h2>
-                  <p className="text-gray-700">{result.summary}</p>
+                <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-white">{REVIEW.DETAIL.SUMMARY_TITLE}</h2>
+                  <p className="text-gray-200">{result.summary}</p>
                 </div>
               )}
 
               {(result.finding_objects && result.finding_objects.length > 0) ? (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div className="bg-black/40 rounded-xl shadow-lg border border-white/10 p-6">
                   {/* Header with gradient background */}
-                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                  <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-100 rounded-lg">
                         <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -540,17 +490,17 @@ export default function ReviewDetailPage() {
                         </svg>
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
+                        <h2 className="text-2xl font-bold text-white">
                           {REVIEW.DETAIL.FINDINGS_TITLE}
                         </h2>
-                        <p className="text-sm text-gray-500 mt-0.5">
-                          Showing <span className="font-semibold text-indigo-600">{getFilteredFindings().length}</span> of <span className="font-semibold">{result.finding_objects.length}</span> findings
+                        <p className="text-sm text-gray-400 mt-0.5">
+                          Showing <span className="font-semibold text-indigo-300">{getFilteredFindings().length}</span> of <span className="font-semibold">{result.finding_objects.length}</span> findings
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={handleDownloadReport}
-                      className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                      className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-lg hover:from-indigo-500 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -561,8 +511,8 @@ export default function ReviewDetailPage() {
 
                   {/* Enhanced Filter Controls */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
-                      <label htmlFor="severity-filter" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg p-4 border border-white/10">
+                      <label htmlFor="severity-filter" className="block text-sm font-semibold text-gray-100 mb-2 flex items-center gap-2">
                         <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
@@ -572,7 +522,7 @@ export default function ReviewDetailPage() {
                         id="severity-filter"
                         value={severityFilter}
                         onChange={(e) => setSeverityFilter(e.target.value)}
-                        className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white font-medium shadow-sm transition-all"
+                        className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-50 bg-black/40 font-medium shadow-sm transition-all"
                       >
                         <option value="all">All Severities</option>
                         <option value="critical">🔴 Critical</option>
@@ -582,8 +532,8 @@ export default function ReviewDetailPage() {
                         <option value="info">⚪ Info</option>
                       </select>
                     </div>
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
-                      <label htmlFor="category-filter" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg p-4 border border-white/10">
+                      <label htmlFor="category-filter" className="block text-sm font-semibold text-gray-100 mb-2 flex items-center gap-2">
                         <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
@@ -593,7 +543,7 @@ export default function ReviewDetailPage() {
                         id="category-filter"
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white font-medium shadow-sm transition-all"
+                        className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-50 bg-black/40 font-medium shadow-sm transition-all"
                       >
                         <option value="all">All Categories</option>
                         <option value="security">🔒 Security</option>
@@ -627,7 +577,7 @@ export default function ReviewDetailPage() {
                         return (
                           <div
                             key={finding.id}
-                            className={`border-l-4 ${borderColorMap[severityLower] || 'border-gray-400'} bg-gradient-to-r ${bgGradientMap[severityLower] || 'from-gray-50 to-gray-100/50'} rounded-r-lg shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden`}
+                            className={`border-l-4 ${borderColorMap[severityLower] || 'border-gray-400'} bg-gradient-to-r ${bgGradientMap[severityLower] || 'from-gray-900 to-gray-800/50'} rounded-r-lg shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden`}
                           >
                             {/* Header - Always visible */}
                             <div 
@@ -647,7 +597,7 @@ export default function ReviewDetailPage() {
                                   {finding.category?.replace('_', ' ')}
                                 </span>
                                 {finding.file_path && (
-                                  <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-white/60 px-2 py-1 rounded-md">
+                                  <div className="flex items-center gap-1.5 text-xs text-gray-200 bg-black/40 px-2 py-1 rounded-md">
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
@@ -670,20 +620,20 @@ export default function ReviewDetailPage() {
                             
                             {/* Collapsible Content */}
                             {isExpanded && (
-                              <div className="px-4 pb-4 space-y-4 bg-white/40">
-                                <div className="pt-2 border-t border-gray-200/50">
-                                  <p className="text-gray-900 font-semibold leading-relaxed">{finding.issue_description}</p>
+                              <div className="px-4 pb-4 space-y-4 bg-black/40">
+                                <div className="pt-2 border-t border-white/10">
+                                  <p className="text-gray-100 font-semibold leading-relaxed">{finding.issue_description}</p>
                                 </div>
                                 
                                 {finding.suggested_fix && (
-                                  <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 shadow-sm">
+                                  <div className="p-4 bg-gradient-to-br from-green-900/40 to-emerald-800/40 rounded-lg border border-green-400/70 shadow-sm">
                                     <div className="flex items-center gap-2 mb-2">
                                       <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                       </svg>
                                       <p className="text-sm font-bold text-green-800">{REVIEW.DETAIL.SUGGESTED_FIX}</p>
                                     </div>
-                                    <p className="text-sm text-green-900 leading-relaxed">{finding.suggested_fix}</p>
+                                    <p className="text-sm text-green-50 leading-relaxed">{finding.suggested_fix}</p>
                                   </div>
                                 )}
                                 
@@ -691,17 +641,17 @@ export default function ReviewDetailPage() {
                                   <div className="relative">
                                     <div className="flex justify-between items-center mb-2">
                                       <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                         </svg>
-                                        <p className="text-sm font-semibold text-gray-700">Code Snippet</p>
+                                        <p className="text-sm font-semibold text-gray-100">Code Snippet</p>
                                       </div>
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           handleCopyCodeSnippet(finding.code_snippet || '');
                                         }}
-                                        className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm hover:shadow"
+                                        className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm hover:shadow"
                                       >
                                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -709,7 +659,7 @@ export default function ReviewDetailPage() {
                                         Copy
                                       </button>
                                     </div>
-                                    <pre className="p-4 bg-gray-900 text-gray-100 rounded-lg text-xs overflow-x-auto border-2 border-gray-800 shadow-inner font-mono leading-relaxed">
+                                    <pre className="p-4 bg-gray-950 text-gray-100 rounded-lg text-xs overflow-x-auto border border-gray-700 shadow-inner font-mono leading-relaxed">
                                       {finding.code_snippet}
                                     </pre>
                                   </div>
@@ -720,39 +670,39 @@ export default function ReviewDetailPage() {
                         );
                       })
                     ) : (
-                      <div className="text-center py-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="text-center py-12 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-2 border-dashed border-gray-600">
+                        <svg className="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p className="text-gray-600 font-medium">No findings match the selected filters</p>
-                        <p className="text-sm text-gray-500 mt-1">Try adjusting your filters to see more results</p>
+                        <p className="text-gray-200 font-medium">No findings match the selected filters</p>
+                        <p className="text-sm text-gray-400 mt-1">Try adjusting your filters to see more results</p>
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                    <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-black/40 rounded-xl shadow-lg border border-white/10 p-8 text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-900/40 rounded-full mb-4">
+                    <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{REVIEW.DETAIL.FINDINGS_TITLE}</h2>
-                  <p className="text-gray-600 text-lg">No findings detected. Great job! 🎉</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">{REVIEW.DETAIL.FINDINGS_TITLE}</h2>
+                  <p className="text-gray-200 text-lg">No findings detected. Great job! 🎉</p>
                 </div>
               )}
             </div>
           ) : review.status === 'failed' ? (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
+            <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-8 text-center">
               <div className="mb-4">
                 <svg className="mx-auto h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Review Failed</h3>
-              <p className="text-gray-600 mb-6">The review could not be completed. This might be due to repository access issues or rate limiting.</p>
+              <h3 className="text-lg font-semibold text-white mb-2">Review Failed</h3>
+              <p className="text-gray-300 mb-6">The review could not be completed. This might be due to repository access issues or rate limiting.</p>
               {error && (
-                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                <div className="mb-4 bg-red-500/10 border border-red-500/40 text-red-100 px-4 py-3 rounded text-sm">
                   {error}
                 </div>
               )}
@@ -760,34 +710,34 @@ export default function ReviewDetailPage() {
                 <button
                   onClick={handleRetry}
                   disabled={retrying}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {retrying ? 'Retrying...' : 'Retry Review'}
                 </button>
               )}
               {!isOwner && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   Sign in as the review owner to retry this review.
                 </p>
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <p className="text-gray-600">{REVIEW.DETAIL.NO_RESULTS}</p>
+            <div className="bg-black/40 border border-white/10 rounded-lg shadow-lg shadow-black/40 p-8 text-center">
+              <p className="text-gray-200">{REVIEW.DETAIL.NO_RESULTS}</p>
             </div>
           )}
         </div>
-      </main>
 
-      {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </div>
+        {/* Toast Notification */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </main>
+    </AppShell>
   );
 }
 
