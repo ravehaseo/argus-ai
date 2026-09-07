@@ -5,8 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Argus - AI Code Review Assistant',
+  title: 'Argus - AI Code Review',
   description: 'AI-powered code review service for GitHub repositories. The all-seeing code reviewer.',
+  icons: { icon: '/argus-logo.svg' },
 }
 
 export default function RootLayout({

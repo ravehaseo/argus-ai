@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { LANDING, APP_NAME, NAV } from '@/lib/ui-constants';
 
 export default function Home() {
@@ -9,9 +10,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-                <span className="text-xs font-black tracking-tight">A</span>
-              </div>
+              <Image src="/argus-logo.svg" alt="Argus" width={32} height={32} className="h-8 w-8 rounded-lg object-contain shadow-lg shadow-indigo-500/40" />
               <span className="text-xl font-semibold tracking-tight">{APP_NAME}</span>
             </div>
             <div className="hidden md:flex items-center space-x-6 text-sm">

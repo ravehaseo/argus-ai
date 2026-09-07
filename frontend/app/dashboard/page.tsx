@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { apiClient } from '@/lib/api-client';
 import { supabase } from '@/lib/supabase';
 import type { Review, User } from '@/types';
@@ -245,9 +246,7 @@ export default function DashboardPage() {
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <Link href="/dashboard" className="flex items-center space-x-2">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 text-xs font-black shadow-md shadow-indigo-500/40">
-                    A
-                  </span>
+                  <Image src="/argus-logo.svg" alt="Argus" width={32} height={32} className="h-8 w-8 rounded-lg object-contain shadow-md shadow-indigo-500/40" />
                   <span className="text-xl font-semibold tracking-tight text-white">
                     {APP_NAME}
                   </span>
@@ -276,9 +275,7 @@ export default function DashboardPage() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center space-x-2">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 text-xs font-black shadow-md shadow-indigo-500/40">
-                  A
-                </span>
+                <Image src="/argus-logo.svg" alt="Argus" width={32} height={32} className="h-8 w-8 rounded-lg object-contain shadow-md shadow-indigo-500/40" />
                 <span className="text-xl font-semibold tracking-tight text-white">
                   {APP_NAME}
                 </span>

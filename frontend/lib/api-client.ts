@@ -42,6 +42,27 @@ class APIClient {
       },
       (error) => Promise.reject(error)
     );
+
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (typeof window === 'undefined') return Promise.reject(error);
+
+        const status = error.response?.status;
+        if (status === 401) {
+          // Unauthorized: clear session and redirect to login
+          import('./supabase').then(({ supabase }) => supabase.auth.signOut());
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_user');
+          window.location.href = '/login?reason=session_expired';
+          return Promise.reject(error);
+        }
+        if (status && status >= 500) {
+          console.error('[API] Server error:', status, error.response?.data || error.message);
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   get instance() {

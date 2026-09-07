@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { ERROR_MESSAGES, APP_NAME } from '@/lib/ui-constants';
+import { ERROR_MESSAGES } from '@/lib/ui-constants';
 
 export default function Error({
   error,

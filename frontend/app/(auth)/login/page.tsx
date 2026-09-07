@@ -3,17 +3,24 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { apiClient } from '@/lib/api-client';
 import { supabase } from '@/lib/supabase';
 import { AUTH, APP_TAGLINE } from '@/lib/ui-constants';
+import { useSearchParams } from 'next/navigation';
 import { extractErrorMessage } from '@/lib/error-utils';
 import { AppShell } from '@/components/layout/AppShell';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    searchParams.get('reason') === 'session_expired'
+      ? 'Your session expired. Please sign in again.'
+      : ''
+  );
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'github' | 'google' | null>(null);
 
@@ -82,9 +89,7 @@ export default function LoginPage() {
           <div className="absolute -inset-px rounded-2xl bg-gradient-to-tr from-indigo-500/20 via-transparent to-cyan-500/20 pointer-events-none" />
           <div className="relative">
             <div className="flex flex-col items-center space-y-2">
-              <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 shadow-md shadow-indigo-500/40">
-                <span className="text-xs font-black tracking-tight text-white">A</span>
-              </div>
+              <Image src="/argus-logo.svg" alt="Argus" width={40} height={40} className="h-10 w-10 rounded-xl object-contain shadow-md shadow-indigo-500/40" />
               <h2 className="text-center text-2xl font-bold text-white">
                 {AUTH.LOGIN.TITLE}
               </h2>
